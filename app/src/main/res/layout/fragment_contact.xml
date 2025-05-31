@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.contact.contactFragment">
+
+    <!-- Call Us Button -->
+    <Button
+        android:id="@+id/buttonCallUs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Call Us"
+        android:layout_marginTop="16dp"
+        android:onClick="onCallUsClick"/>
+
+    <!-- Locate Us Button -->
+    <Button
+        android:id="@+id/buttonLocateUs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Locate Us"
+        android:layout_marginTop="80dp"
+        android:layout_below="@id/buttonCallUs"
+        android:onClick="onLocateUsClick"/>
+
+    <!-- Email Us Button -->
+    <Button
+        android:id="@+id/buttonEmailUs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email Us"
+        android:layout_marginTop="120dp"
+        android:layout_below="@id/buttonLocateUs"
+        android:onClick="onEmailUsClick"/>
+
+</FrameLayout>
