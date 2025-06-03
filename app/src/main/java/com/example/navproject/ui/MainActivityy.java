@@ -1,7 +1,8 @@
 package com.example.navproject.ui;
 
-
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,8 @@ public class MainActivityy extends AppCompatActivity {
     private TextView errorMessage;
     private ProgressBar progressBar;
 
+    private static final String TAG = "API_LOG";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,80 +48,98 @@ public class MainActivityy extends AppCompatActivity {
         });
     }
 
-    // this function is to connect to the API, it has the function execute that takes the URL
     private void connectToApi() {
-        progressBar.setVisibility(View.VISIBLE);  // Show the progress bar
-        connectButton.setVisibility(View.INVISIBLE);  // Hide the button while connecting
-        errorMessage.setVisibility(View.INVISIBLE);  // Hide the error message
-
-        new ConnectionAsyncTask().execute("https://mocki.io/v1/f208b41b-12f1-45d0-9b74-2a635f184a2d");
+        progressBar.setVisibility(View.VISIBLE);
+        connectButton.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.INVISIBLE);
+        new ConnectionAsyncTask().execute("https://mocki.io/v1/fbe1ffc6-b9ff-459a-80fc-8e71af71ee6f");
     }
 
     private class ConnectionAsyncTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
-            // SHOW connecting on the button
             connectButton.setText("Connecting...");
-            progressBar.setVisibility(View.VISIBLE);  // Show the progress bar before starting the task
-            errorMessage.setVisibility(View.INVISIBLE);  // Hide any previous error messages
+            progressBar.setVisibility(View.VISIBLE);
+            errorMessage.setVisibility(View.INVISIBLE);
         }
+
         @Override
         protected String doInBackground(String... urls) {
-            // here is the http manager get data functionality as in exp8
             try {
                 URL url = new URL(urls[0]);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setConnectTimeout(5000);  // Set connection timeout
-                urlConnection.setReadTimeout(5000);     // Set read timeout
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
-                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
                 }
-                in.close();
+                reader.close();
 
-                return response.toString();  // Return the response from the API
+                return result.toString();
             } catch (Exception e) {
-                Log.e("API_ERROR", "Error connecting to API: " + e.getMessage());
-                return null;  // Return null if there is an error
+                Log.e(TAG, "Connection Error: " + e.getMessage());
+                return null;
             }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            progressBar.setVisibility(View.INVISIBLE);  // Hide the progress bar
-            connectButton.setVisibility(View.VISIBLE);  // Show the button again
+            progressBar.setVisibility(View.INVISIBLE);
+            connectButton.setVisibility(View.VISIBLE);
 
             if (result != null) {
                 try {
-                    // Parse the API response (assuming it's a JSON object)
                     JSONObject jsonResponse = new JSONObject(result);
-
-                    // Extract categories and properties
-                    JSONArray categories = jsonResponse.getJSONArray("categories");
                     JSONArray properties = jsonResponse.getJSONArray("properties");
 
-                    // You can process these arrays as needed here.
-                    // For example, you can log or display the category names
-                    for (int i = 0; i < categories.length(); i++) {
-                        JSONObject category = categories.getJSONObject(i);
-                        Log.d("CATEGORY", category.getString("name"));
+                    int apartments = 0, villas = 0, lands = 0;
+
+                    SQLiteDatabase db = openOrCreateDatabase("user_db", MODE_PRIVATE, null);
+                    db.execSQL("CREATE TABLE IF NOT EXISTS properties (id INTEGER PRIMARY KEY, title TEXT, type TEXT, price INTEGER, location TEXT, area TEXT, bedrooms INTEGER, bathrooms INTEGER, image_url TEXT, description TEXT)");
+                    db.delete("properties", null, null); // clear old data
+
+                    for (int i = 0; i < properties.length(); i++) {
+                        JSONObject prop = properties.getJSONObject(i);
+                        String type = prop.getString("type");
+
+                        switch (type) {
+                            case "Apartment": apartments++; break;
+                            case "Villa": villas++; break;
+                            case "Land": lands++; break;
+                        }
+
+                        ContentValues values = new ContentValues();
+                        values.put("id", prop.getInt("id"));
+                        values.put("title", prop.getString("title"));
+                        values.put("type", type);
+                        values.put("price", prop.getInt("price"));
+                        values.put("location", prop.getString("location"));
+                        values.put("area", prop.getString("area"));
+                        values.put("bedrooms", prop.getInt("bedrooms"));
+                        values.put("bathrooms", prop.getInt("bathrooms"));
+                        values.put("image_url", prop.getString("image_url"));
+                        values.put("description", prop.getString("description"));
+                        db.insert("properties", null, values);
                     }
 
-                    // If successful, go to the next screen (Login/Register)
+                    Log.d(TAG, "Apartments: " + apartments);
+                    Log.d(TAG, "Villas: " + villas);
+                    Log.d(TAG, "Lands: " + lands);
+
                     Intent intent = new Intent(MainActivityy.this, LoginActivity.class);
                     startActivity(intent);
                 } catch (Exception e) {
-                    Log.e("JSON_ERROR", "Error parsing JSON response: " + e.getMessage());
-                    errorMessage.setVisibility(View.VISIBLE);  // Show the error message if parsing fails
+                    Log.e("JSON_ERROR", "Error parsing JSON: " + e.getMessage());
+                    errorMessage.setVisibility(View.VISIBLE);
                 }
             } else {
-                errorMessage.setVisibility(View.VISIBLE);  // Show error message if connection fails
+                errorMessage.setVisibility(View.VISIBLE);
             }
         }
     }
