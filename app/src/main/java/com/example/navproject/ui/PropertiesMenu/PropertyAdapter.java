@@ -24,13 +24,15 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
     private Context context;
 
     private int userId;
+    private boolean isFavoriteMode;
 
-    public PropertyAdapter(List<Property> properties, Context context, int userId) {
+
+    public PropertyAdapter(List<Property> properties, Context context, int userId, boolean isFavoriteMode) {
         this.propertyList = properties;
         this.context = context;
         this.userId = userId;
+        this.isFavoriteMode = isFavoriteMode;
     }
-
 
     @NonNull
     @Override
@@ -63,6 +65,35 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
             dbHelper.logFavoritesTable();
         });
 
+        if (isFavoriteMode) {
+            holder.btnFavorite.setText("Remove");
+
+            holder.btnFavorite.setOnClickListener(v -> {
+                UserDataBaseHelper dbHelper = new UserDataBaseHelper(context);
+                dbHelper.removeFavorite(userId, p.id);
+                Toast.makeText(context, "Removed from favorites", Toast.LENGTH_SHORT).show();
+
+                // Remove item from the list and notify
+                propertyList.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, propertyList.size());
+            });
+
+        } else {
+            holder.btnFavorite.setText("Favorite");
+
+            holder.btnFavorite.setOnClickListener(v -> {
+                UserDataBaseHelper dbHelper = new UserDataBaseHelper(context);
+                dbHelper.insertFavorite(userId, p.id);
+                Toast.makeText(context, "Added to favorites", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        holder.btnReserve.setOnClickListener(v -> {
+            UserDataBaseHelper dbHelper = new UserDataBaseHelper(context);
+            dbHelper.insertReservation(userId, p.id);  // Insert into reservations
+            Toast.makeText(context, "Reserved: " + p.title, Toast.LENGTH_SHORT).show();
+        });
 
 
     }

@@ -57,8 +57,20 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 "user_id INTEGER, " +
                 "property_id INTEGER, " +
                 "FOREIGN KEY(user_id) REFERENCES users(_id), " +
-                "FOREIGN KEY(property_id) REFERENCES properties(property_id));";
+                "FOREIGN KEY(property_id) REFERENCES properties(property_id), " +
+                "UNIQUE(user_id, property_id));";
         db.execSQL(CREATE_FAVORITES_TABLE);
+
+        String CREATE_RESERVATIONS_TABLE = "CREATE TABLE IF NOT EXISTS reservations (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "user_id INTEGER, " +
+                "property_id INTEGER, " +
+                "timestamp TEXT, " +  // Save date & time of reservation
+                "FOREIGN KEY(user_id) REFERENCES users(_id), " +
+                "FOREIGN KEY(property_id) REFERENCES properties(property_id), " +
+                "UNIQUE(user_id, property_id));";
+        db.execSQL(CREATE_RESERVATIONS_TABLE);
+
 
         insertAdminAccount(db);
     }
@@ -80,6 +92,8 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTIES);
         db.execSQL("DROP TABLE IF EXISTS favorites");
+        db.execSQL("DROP TABLE IF EXISTS reservations");
+
         onCreate(db);
     }
 
@@ -116,12 +130,53 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
 
     public void insertFavorite(int userId, int propertyId) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // First, check if it already exists
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM favorites WHERE user_id = ? AND property_id = ?",
+                new String[]{String.valueOf(userId), String.valueOf(propertyId)}
+        );
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+
+        if (exists) {
+            Log.d("DB_FAVORITES", "Favorite already exists: user " + userId + ", property " + propertyId);
+            return; // Do not insert again
+        }
+
         ContentValues values = new ContentValues();
         values.put("user_id", userId);
         values.put("property_id", propertyId);
+
         db.insert("favorites", null, values);
-        db.close();
+        Log.d("DB_FAVORITES", "Favorite added: user " + userId + ", property " + propertyId);
     }
+
+    public void insertReservation(int userId, int propertyId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM reservations WHERE user_id = ? AND property_id = ?",
+                new String[]{String.valueOf(userId), String.valueOf(propertyId)}
+        );
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+
+        if (exists) return;
+
+        String timestamp = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+
+        ContentValues values = new ContentValues();
+        values.put("user_id", userId);
+        values.put("property_id", propertyId);
+        values.put("timestamp", timestamp);  // Save date/time
+
+        db.insert("reservations", null, values);
+    }
+
+
 
     public void logFavoritesTable() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -145,4 +200,37 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
     }
+
+    public void removeFavorite(int userId, int propertyId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("favorites", "user_id=? AND property_id=?", new String[]{
+                String.valueOf(userId), String.valueOf(propertyId)
+        });
+        db.close();
+    }
+    public void logReservationsTable() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT r.id AS res_id, r.user_id, r.property_id, p.title " +
+                        "FROM reservations r " +
+                        "LEFT JOIN properties p ON r.property_id = p.id", null);
+
+        Log.d("RESERVATIONS_TABLE", "---- Reservations ----");
+        while (cursor.moveToNext()) {
+            int resId = cursor.getInt(cursor.getColumnIndexOrThrow("res_id"));
+            int userId = cursor.getInt(cursor.getColumnIndexOrThrow("user_id"));
+            int propertyId = cursor.getInt(cursor.getColumnIndexOrThrow("property_id"));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+
+            Log.d("RESERVATIONS_TABLE", "Res ID: " + resId +
+                    " | User ID: " + userId +
+                    " | Property ID: " + propertyId +
+                    " | Title: " + (title != null ? title : "N/A"));
+        }
+        cursor.close();
+        db.close();
+    }
+
+
+
 }

@@ -41,7 +41,7 @@ public class PropertiesMenuFragment extends Fragment {
 
         List<Property> properties = loadPropertiesFromDatabase();
 
-        PropertyAdapter adapter = new PropertyAdapter(properties, getContext(), userId);
+        PropertyAdapter adapter = new PropertyAdapter(properties, getContext(), userId,false);
         binding.recyclerViewProperties.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewProperties.setAdapter(adapter);
 

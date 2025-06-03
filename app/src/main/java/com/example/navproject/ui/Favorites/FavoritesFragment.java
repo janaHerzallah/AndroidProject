@@ -43,7 +43,7 @@ public class FavoritesFragment extends Fragment {
 
         if (userId != -1) {
             List<Property> favorites = loadFavoriteProperties(userId);
-            adapter = new PropertyAdapter(favorites, getContext(), userId);
+            adapter = new PropertyAdapter(favorites, getContext(), userId, true);
             recyclerView.setAdapter(adapter);
         }
 
