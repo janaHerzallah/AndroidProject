@@ -10,9 +10,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.navproject.R;
+import com.example.navproject.ui.Reservations.ReservationDetailsFragment;
 import com.example.navproject.ui.UserDataBaseHelper;
 import com.squareup.picasso.Picasso;
 
@@ -93,6 +95,14 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
             UserDataBaseHelper dbHelper = new UserDataBaseHelper(context);
             dbHelper.insertReservation(userId, p.id);  // Insert into reservations
             Toast.makeText(context, "Reserved: " + p.title, Toast.LENGTH_SHORT).show();
+
+            //ReservationDetailsFragment detailsFragment = ReservationDetailsFragment.newInstance(p, userId);
+            //((AppCompatActivity) context)
+                    //.getSupportFragmentManager()
+                    //.beginTransaction()
+                    //.replace(R.id.nav_host_fragment_content_main, detailsFragment)  // Adjust ID if needed
+                    //.addToBackStack(null)
+                    //.commit();
         });
 
 
@@ -118,5 +128,9 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
             btnReserve = itemView.findViewById(R.id.btnReserve);
         }
+    }
+    public void updateData(List<Property> newProperties) {
+        this.propertyList = newProperties;
+        notifyDataSetChanged();
     }
 }

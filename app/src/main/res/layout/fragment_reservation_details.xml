@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/propertyImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Property image" />
+
+        <TextView
+            android:id="@+id/propertyTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Property Title"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginTop="12dp"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/propertyLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="City, Area"
+            android:textSize="16sp"
+            android:textColor="#555555"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/propertyPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="$000000"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description goes here"
+            android:textSize="16sp"
+            android:textColor="#444444"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirm Reservation"
+            android:textAllCaps="false"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</ScrollView>

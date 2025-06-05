@@ -36,11 +36,16 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 COLUMN_FIRST_NAME + " TEXT, " +
                 COLUMN_LAST_NAME + " TEXT, " +
                 COLUMN_PASSWORD + " TEXT, " +
+                "phone TEXT, " +
+                "profile_image_url TEXT, " +
+                "country TEXT, " +                //
+                "country_code TEXT, " +           //
                 COLUMN_ROLE + " TEXT);";
+
         db.execSQL(CREATE_USERS_TABLE);
 
         String CREATE_PROPERTIES_TABLE = "CREATE TABLE IF NOT EXISTS properties (" +
-                "property_id INTEGER PRIMARY KEY, " +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "title TEXT, " +
                 "type TEXT, " +
                 "price REAL, " +
@@ -49,7 +54,8 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 "bedrooms INTEGER, " +
                 "bathrooms INTEGER, " +
                 "image_url TEXT, " +
-                "description TEXT);";
+                "description TEXT, " +
+                "featured INTEGER DEFAULT 0);"; // ✅ New featured column
         db.execSQL(CREATE_PROPERTIES_TABLE);
 
         String CREATE_FAVORITES_TABLE = "CREATE TABLE IF NOT EXISTS favorites (" +
@@ -97,17 +103,21 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertUser(String email, String firstName, String lastName, String password, String role) {
+    public void insertUser(String email, String firstName, String lastName, String password, String phone, String country, String countryCode, String role) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EMAIL, email);
         values.put(COLUMN_FIRST_NAME, firstName);
         values.put(COLUMN_LAST_NAME, lastName);
         values.put(COLUMN_PASSWORD, password);
+        values.put("phone", phone);
+        values.put("country", country);             // ✅ Save country
+        values.put("country_code", countryCode);    // ✅ Save code
         values.put(COLUMN_ROLE, role);
         db.insert(TABLE_USERS, null, values);
         db.close();
     }
+
 
     public Cursor getUserByEmail(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -177,7 +187,6 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-
     public void logFavoritesTable() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
@@ -208,6 +217,7 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         });
         db.close();
     }
+
     public void logReservationsTable() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
@@ -231,6 +241,48 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void updateUserProfile(int userId, String firstName, String lastName, String phone, String imageUrl) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("first_name", firstName);
+        values.put("last_name", lastName);
+        values.put("phone", phone);
+        values.put("profile_image_url", imageUrl);
 
+        db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
+        db.close();
+    }
+
+    public boolean updateUserPassword(int userId, String newPassword) {
+        if (!isValidPassword(newPassword)) return false;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("password", newPassword);
+        db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
+        db.close();
+        return true;
+    }
+
+    private boolean isValidPassword(String password) {
+        return password.matches("^(?=.*[A-Z])(?=.*\\d).{6,}$"); // 1 uppercase, 1 digit, 6+ chars
+    }
+
+    // get user by ID
+    public Cursor getUserById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS, null, COLUMN_ID + " = ?", new String[]{String.valueOf(userId)}, null, null, null);
+
+    }
+
+    public Cursor getFeaturedProperties() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM properties WHERE featured = 1", null);
+    }
+
+    public void markFirstTwoPropertiesAsFeatured() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE properties SET featured = 1 WHERE id IN (SELECT id FROM properties LIMIT 2)");
+    }
 
 }

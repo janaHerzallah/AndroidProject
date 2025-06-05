@@ -1,6 +1,8 @@
 package com.example.navproject.ui.PropertiesMenu;
 
-public class Property {
+import java.io.Serializable;
+
+public class Property implements Serializable {
     public int id;
     public String title, description, location, type, imageUrl, area;
     public int price, bedrooms, bathrooms;
@@ -17,5 +19,45 @@ public class Property {
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.imageUrl = imageUrl;
+    }
+
+    public Object getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public int getBedrooms() {
+        return bedrooms;
+    }
+
+    public int getBathrooms() {
+        return bathrooms;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 }

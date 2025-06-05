@@ -40,19 +40,14 @@ public class MainActivityy extends AppCompatActivity {
         errorMessage = findViewById(R.id.errorMessage);
         progressBar = findViewById(R.id.progressBar);
 
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                connectToApi();
-            }
-        });
+        connectButton.setOnClickListener(v -> connectToApi());
     }
 
     private void connectToApi() {
         progressBar.setVisibility(View.VISIBLE);
         connectButton.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.INVISIBLE);
-        new ConnectionAsyncTask().execute("https://mocki.io/v1/fbe1ffc6-b9ff-459a-80fc-8e71af71ee6f");
+        new ConnectionAsyncTask().execute("https://mocki.io/v1/b3735c04-0279-4ced-a88b-3c53876d7b86");
     }
 
     private class ConnectionAsyncTask extends AsyncTask<String, Void, String> {
@@ -100,22 +95,31 @@ public class MainActivityy extends AppCompatActivity {
 
                     int apartments = 0, villas = 0, lands = 0;
 
-                    SQLiteDatabase db = openOrCreateDatabase("user_db", MODE_PRIVATE, null);
-                    db.execSQL("CREATE TABLE IF NOT EXISTS properties (id INTEGER PRIMARY KEY, title TEXT, type TEXT, price INTEGER, location TEXT, area TEXT, bedrooms INTEGER, bathrooms INTEGER, image_url TEXT, description TEXT)");
-                    db.delete("properties", null, null); // clear old data
+                    // Use your helper class to manage schema correctly
+                    UserDataBaseHelper dbHelper = new UserDataBaseHelper(MainActivityy.this);
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    dbHelper.markFirstTwoPropertiesAsFeatured();
+                    // Clear old data
+                    db.delete("properties", null, null);
 
                     for (int i = 0; i < properties.length(); i++) {
                         JSONObject prop = properties.getJSONObject(i);
                         String type = prop.getString("type");
 
                         switch (type) {
-                            case "Apartment": apartments++; break;
-                            case "Villa": villas++; break;
-                            case "Land": lands++; break;
+                            case "Apartment":
+                                apartments++;
+                                break;
+                            case "Villa":
+                                villas++;
+                                break;
+                            case "Land":
+                                lands++;
+                                break;
                         }
 
                         ContentValues values = new ContentValues();
-                        values.put("id", prop.getInt("id"));
+                        values.put("id", prop.getInt("id"));  // note: "property_id" matches your schema
                         values.put("title", prop.getString("title"));
                         values.put("type", type);
                         values.put("price", prop.getInt("price"));
@@ -125,6 +129,8 @@ public class MainActivityy extends AppCompatActivity {
                         values.put("bathrooms", prop.getInt("bathrooms"));
                         values.put("image_url", prop.getString("image_url"));
                         values.put("description", prop.getString("description"));
+                        values.put("featured", 0); // Default to not featured
+
                         db.insert("properties", null, values);
                     }
 
@@ -132,8 +138,14 @@ public class MainActivityy extends AppCompatActivity {
                     Log.d(TAG, "Villas: " + villas);
                     Log.d(TAG, "Lands: " + lands);
 
+                    // Optionally mark first two as featured
+                    dbHelper.markFirstTwoPropertiesAsFeatured();
+
+                    // Continue to login
                     Intent intent = new Intent(MainActivityy.this, LoginActivity.class);
                     startActivity(intent);
+                    finish();
+
                 } catch (Exception e) {
                     Log.e("JSON_ERROR", "Error parsing JSON: " + e.getMessage());
                     errorMessage.setVisibility(View.VISIBLE);
