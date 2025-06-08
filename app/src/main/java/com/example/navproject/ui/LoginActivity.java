@@ -78,8 +78,14 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             editor.apply();
 
-                            Intent intent = new Intent(LoginActivity.this, com.example.navproject.MainActivity.class);
+                            Intent intent;
+                            if ("admin".equalsIgnoreCase(role)) {
+                                intent = new Intent(LoginActivity.this, com.example.navproject.MainActivity_Admin.class);
+                            } else {
+                                intent = new Intent(LoginActivity.this, com.example.navproject.MainActivity.class);
+                            }
                             startActivity(intent);
+
 
                         } else {
                             Toast.makeText(LoginActivity.this, "Incorrect password", Toast.LENGTH_SHORT).show();

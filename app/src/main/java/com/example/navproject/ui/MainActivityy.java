@@ -139,7 +139,7 @@ public class MainActivityy extends AppCompatActivity {
                     Log.d(TAG, "Lands: " + lands);
 
                     // Optionally mark first two as featured
-                    dbHelper.markFirstTwoPropertiesAsFeatured();
+                    //dbHelper.markFirstTwoPropertiesAsFeatured();
 
                     // Continue to login
                     Intent intent = new Intent(MainActivityy.this, LoginActivity.class);

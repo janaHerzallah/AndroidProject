@@ -80,7 +80,8 @@ public class RegisterActivity extends AppCompatActivity {
                 String selectedCountry = countrySpinner.getSelectedItem().toString();
                 String countryCode = getCountryCode(selectedCountry);
 
-                String role = email.equals("admin@admin.com") ? "admin" : "user";
+                //String role = email.equals("admin@admin.com") ? "admin" : "user";
+                String role = email.endsWith("@admin.com") ? "admin" : "user";
 
                 UserDataBaseHelper dbHelper = new UserDataBaseHelper(RegisterActivity.this);
                 dbHelper.insertUser(email, firstName, lastName, password, phoneNumber, selectedCountry, countryCode, role);

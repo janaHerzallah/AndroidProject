@@ -47,5 +47,11 @@
             </intent-filter>
         </activity>
 
+        <!-- added this for admin -->
+        <activity
+            android:name=".MainActivity_Admin"
+            android:exported="false"
+            android:theme="@style/Theme.NavProject.NoActionBar" />
+
     </application>
 </manifest>

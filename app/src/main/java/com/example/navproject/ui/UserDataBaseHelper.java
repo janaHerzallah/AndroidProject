@@ -285,4 +285,65 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("UPDATE properties SET featured = 1 WHERE id IN (SELECT id FROM properties LIMIT 2)");
     }
 
+    public void markPropertyAsFeatured(int propertyId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("featured", 1);
+        db.update("properties", values, "id = ?", new String[]{String.valueOf(propertyId)});
+        db.close();
+    }
+
+
+    public Cursor getAllReservationsWithDetails() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery(
+                "SELECT r.timestamp, u.first_name, u.last_name, p.title " +
+                        "FROM reservations r " +
+                        "JOIN users u ON r.user_id = u._id " +
+                        "JOIN properties p ON r.property_id = p.id", null);
+    }
+
+
+    // Count of all users
+    public int getUserCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM users WHERE role = 'user'", null);
+        int count = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        cursor.close();
+        return count;
+    }
+
+    // Count of unique reserved properties
+    public int getReservedPropertyCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(DISTINCT property_id) FROM reservations", null);
+        int count = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        cursor.close();
+        return count;
+    }
+
+    // Top countries by number of reservations
+    public Cursor getTopCountriesByReservations() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery(
+                "SELECT u.country, COUNT(*) AS count " +
+                        "FROM reservations r " +
+                        "JOIN users u ON r.user_id = u._id " +
+                        "GROUP BY u.country " +
+                        "ORDER BY count DESC LIMIT 3", null
+        );
+    }
+
+    public Cursor getAllCustomers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT _id, first_name, last_name, email FROM users WHERE role = 'user'", null);
+    }
+
+    public void deleteUserById(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("users", "_id = ?", new String[]{String.valueOf(userId)});
+        db.close();
+    }
+
+
 }
