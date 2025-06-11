@@ -79,12 +79,14 @@ public class RegisterActivity extends AppCompatActivity {
                 String phoneNumber = phoneNumberEditText.getText().toString();
                 String selectedCountry = countrySpinner.getSelectedItem().toString();
                 String countryCode = getCountryCode(selectedCountry);
+                String gender = genderSpinner.getSelectedItem().toString();
+
 
                 //String role = email.equals("admin@admin.com") ? "admin" : "user";
                 String role = email.endsWith("@admin.com") ? "admin" : "user";
 
                 UserDataBaseHelper dbHelper = new UserDataBaseHelper(RegisterActivity.this);
-                dbHelper.insertUser(email, firstName, lastName, password, phoneNumber, selectedCountry, countryCode, role);
+                dbHelper.insertUser(email, firstName, lastName, password, phoneNumber, selectedCountry, countryCode,gender, role);
 
                 Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
             }

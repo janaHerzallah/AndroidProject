@@ -40,6 +40,7 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 "profile_image_url TEXT, " +
                 "country TEXT, " +                //
                 "country_code TEXT, " +           //
+                "gender TEXT, " +
                 COLUMN_ROLE + " TEXT);";
 
         db.execSQL(CREATE_USERS_TABLE);
@@ -55,7 +56,7 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 "bathrooms INTEGER, " +
                 "image_url TEXT, " +
                 "description TEXT, " +
-                "featured INTEGER DEFAULT 0);"; // ✅ New featured column
+                "featured INTEGER DEFAULT 0);"; //  New featured column
         db.execSQL(CREATE_PROPERTIES_TABLE);
 
         String CREATE_FAVORITES_TABLE = "CREATE TABLE IF NOT EXISTS favorites (" +
@@ -72,7 +73,7 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
                 "user_id INTEGER, " +
                 "property_id INTEGER, " +
                 "timestamp TEXT, " +  // Save date & time of reservation
-                "FOREIGN KEY(user_id) REFERENCES users(_id), " +
+                "FOREIGN KEY(user_id) REFERENCES users(_id) ON DELETE CASCADE, " +
                 "FOREIGN KEY(property_id) REFERENCES properties(property_id), " +
                 "UNIQUE(user_id, property_id));";
         db.execSQL(CREATE_RESERVATIONS_TABLE);
@@ -103,7 +104,7 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertUser(String email, String firstName, String lastName, String password, String phone, String country, String countryCode, String role) {
+    public void insertUser(String email, String firstName, String lastName, String password, String phone, String country, String countryCode, String gender, String role) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_EMAIL, email);
@@ -111,8 +112,10 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_LAST_NAME, lastName);
         values.put(COLUMN_PASSWORD, password);
         values.put("phone", phone);
-        values.put("country", country);             // ✅ Save country
-        values.put("country_code", countryCode);    // ✅ Save code
+        values.put("country", country);             //  Save country
+        values.put("country_code", countryCode);    //  Save code
+        values.put("gender", gender);  // <-- Save gender
+
         values.put(COLUMN_ROLE, role);
         db.insert(TABLE_USERS, null, values);
         db.close();
@@ -338,11 +341,40 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT _id, first_name, last_name, email FROM users WHERE role = 'user'", null);
     }
-
+/*
     public void deleteUserById(int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("users", "_id = ?", new String[]{String.valueOf(userId)});
         db.close();
+    }
+*/
+
+    public void deleteUserById(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // First, delete all reservations for this user
+        db.delete("reservations", "user_id = ?", new String[]{String.valueOf(userId)});
+
+        // Now delete the user
+        db.delete("users", "_id = ?", new String[]{String.valueOf(userId)});
+        db.close();
+    }
+    // Get count of male users
+    public int getMaleUserCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM users WHERE gender = 'Male'and role ='user'", null);
+        int count = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        cursor.close();
+        return count;
+    }
+
+    // Get count of female users
+    public int getFemaleUserCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM users WHERE gender = 'Female' and role ='user'", null);
+        int count = cursor.moveToFirst() ? cursor.getInt(0) : 0;
+        cursor.close();
+        return count;
     }
 
 

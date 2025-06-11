@@ -35,5 +35,15 @@
             android:text="Top Countries:\n--"
             android:textSize="18sp"
             android:paddingBottom="12dp" />
+
+        <TextView
+            android:id="@+id/genderTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gender Stats"
+            android:textSize="18sp"
+            android:paddingBottom="12dp"
+            android:textStyle="bold" />
+
     </LinearLayout>
 </ScrollView>

@@ -5,9 +5,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,8 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox rememberMeCheckbox;
     private Button loginButton;
     private TextView registerLink;
+    private ImageView loginImageView;
+
 
     // SharedPreferences key constants
     private static final String PREFS_NAME = "LoginPrefs";
@@ -38,10 +43,14 @@ public class LoginActivity extends AppCompatActivity {
         rememberMeCheckbox = findViewById(R.id.rememberMeCheckbox);
         loginButton = findViewById(R.id.loginButton);
         registerLink = findViewById(R.id.registerLink);
-
+        loginImageView = findViewById(R.id.loginImage);
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String savedEmail = sharedPreferences.getString(KEY_EMAIL, "");
         boolean isRemembered = sharedPreferences.getBoolean(KEY_REMEMBER_ME, false);
+
+        // Load the rotating animation
+        Animation rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate);
+        loginImageView.startAnimation(rotateAnimation); // Apply the animation to the image
 
         if (isRemembered) {
             emailEditText.setText(savedEmail);

@@ -70,11 +70,12 @@ public class AddAdminFragment extends Fragment {
                 String phoneNumber = phoneNumberEditText.getText().toString();
                 String selectedCountry = countrySpinner.getSelectedItem().toString();
                 String countryCode = getCountryCode(selectedCountry);
+                String gender = genderSpinner.getSelectedItem().toString();
 
                 String role = "admin"; // Only admins here
 
                 UserDataBaseHelper dbHelper = new UserDataBaseHelper(requireContext());
-                dbHelper.insertUser(email, firstName, lastName, password, phoneNumber, selectedCountry, countryCode, role);
+                dbHelper.insertUser(email, firstName, lastName, password, phoneNumber, selectedCountry, countryCode, gender,role);
 
                 Toast.makeText(getContext(), "Admin added successfully!", Toast.LENGTH_SHORT).show();
                 clearForm();

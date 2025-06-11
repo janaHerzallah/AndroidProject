@@ -47,4 +47,12 @@
         android:layout_gravity="center_horizontal"
         android:clickable="true"
         android:focusable="true"/>
+
+    <!-- Rotating Login Image (Placed at the End) -->
+    <ImageView
+        android:id="@+id/loginImage"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center"
+        android:src="@drawable/login" />
 </LinearLayout>

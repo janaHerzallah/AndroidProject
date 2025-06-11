@@ -133,4 +133,12 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
         this.propertyList = newProperties;
         notifyDataSetChanged();
     }
+
+    public void updateList(List<Property> newList) {
+        // Update the property list with the new data
+        this.propertyList = newList;
+        // Notify the adapter that the data has changed
+        notifyDataSetChanged();
+    }
+
 }
