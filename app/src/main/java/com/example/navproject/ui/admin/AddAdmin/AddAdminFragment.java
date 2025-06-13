@@ -22,7 +22,7 @@ public class AddAdminFragment extends Fragment {
 
     private EditText emailEditText, firstNameEditText, lastNameEditText, passwordEditText, confirmPasswordEditText, phoneNumberEditText;
     private Spinner genderSpinner, countrySpinner, citySpinner;
-    private Button registerAdminButton;
+    private Button registerAdminButton;// button
 
     private static final List<String> genders = Arrays.asList("Select Gender", "Male", "Female", "Other");
     private static final List<String> countries = Arrays.asList("Select Country", "USA", "Canada", "UK");

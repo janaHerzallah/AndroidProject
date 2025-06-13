@@ -296,6 +296,14 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void unmarkPropertyAsFeatured(int propertyId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("featured", 0);
+        db.update("properties", values, "id = ?", new String[]{String.valueOf(propertyId)});
+        db.close();
+    }
+
 
     public Cursor getAllReservationsWithDetails() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -377,5 +385,13 @@ public class UserDataBaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public void updatePropertyPrice(int propertyId, double newPrice) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("price", newPrice);
+
+        db.update("properties", values, "id = ?", new String[]{String.valueOf(propertyId)});
+        db.close();
+    }
 
 }
